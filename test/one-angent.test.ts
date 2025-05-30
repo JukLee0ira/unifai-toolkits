@@ -35,7 +35,7 @@ async function runAgentTest() {
   // const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
   // const model = genAI.getGenerativeModel({ model: "gemini-pro" }); // 或者 "gemini-1.5-flash" 等
 
-  let messages: any[] = [{ role: "user",  content: "Swap tokens on bsc using LIdo" }];
+  let messages: any[] = [{ role: "user",  content: "Swap tokens on bsc using Lido" }];
 
   console.log("\n--- 开始模拟 AI 代理与 LLM 及工具的交互循环 ---");
 
