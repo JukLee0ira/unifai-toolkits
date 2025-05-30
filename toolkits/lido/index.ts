@@ -4,7 +4,7 @@ dotenv.config();
 import { Toolkit, ActionContext, TransactionAPI } from 'unifai-sdk';
 import { getTokenAddressBySymbol } from '../common/tokenaddress';
 import { ethers } from 'ethers';
-import { PublicKey } from '@solana/web3.js';
+// import { PublicKey } from '@solana/web3.js';
 
 /**
  * 辅助函数：根据代币符号和链获取代币地址。
@@ -321,59 +321,6 @@ async function main() {
       return ctx.result(result);
     } catch (error) {
       return ctx.result({ error: `Failed to bridge liquid staked token: ${error}` });
-    }
-  });
-
-  // ========================================================================
-  // Action: lendLiquidStakedToken (借出流动性质押代币作为抵押)
-  // 此 action 模拟将 stETH/stSOL 存入通用借贷协议（如 Aave 或 Compound）
-  // ========================================================================
-  toolkit.action({
-    action: 'lendLiquidStakedToken',
-    actionDescription: 'Deposit liquid staked tokens (e.g., stETH, stSOL) into a lending protocol (e.g., Aave, Compound) as collateral.',
-    payloadDescription: {
-      chain: {
-        type: 'string',
-        description: 'The blockchain network where the lending protocol resides (e.g., "ethereum", "polygon").',
-        required: true,
-        enums: ['ethereum', 'polygon', 'base', 'bsc'], // 示例支持的链
-      },
-      amount: {
-        type: 'number',
-        description: 'The amount of liquid staked token to deposit.',
-        required: true,
-      },
-      liquidStakedToken: {
-        type: 'string',
-        description: 'The symbol or address of the liquid staked token (e.g., "stETH", "stSOL").',
-        required: true,
-      },
-      protocol: {
-        type: 'string',
-        description: 'The lending protocol to interact with (e.g., "Aave", "Compound", "Venus").',
-        required: true,
-      },
-    }
-  }, async (ctx: ActionContext, payload: any = {}) => {
-    try {
-      const chain = payload.chain.toLowerCase();
-      // 解析流动性质押代币的地址
-      const liquidStakedTokenAddress = await getTokenAddress(payload.liquidStakedToken, chain);
-
-      if (!liquidStakedTokenAddress) {
-        throw new Error(`Could not resolve address for liquid staked token: ${payload.liquidStakedToken} on ${payload.chain}`);
-      }
-
-      // 假设有一个通用的借贷交易类型，需要协议名称、代币地址等信息
-      const result = await api.createTransaction('lido/lend', ctx, {
-        chain: chain,
-        amount: payload.amount.toString(),
-        tokenAddress: liquidStakedTokenAddress,
-        protocol: payload.protocol,
-      });
-      return ctx.result(result);
-    } catch (error) {
-      return ctx.result({ error: `Failed to lend liquid staked token: ${error}` });
     }
   });
 
