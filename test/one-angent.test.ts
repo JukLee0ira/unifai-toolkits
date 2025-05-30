@@ -1,14 +1,15 @@
 import { Tools } from 'unifai-sdk';
 import * as dotenv from 'dotenv';
-import OpenAI from 'openai'; // 假设使用OpenAI，如果您使用Gemini，需要引入@google/generative-ai
-// import { GoogleGenerativeAI } from '@google/generative-ai';
+import OpenAI from 'openai';
+import { resolve } from 'path';
 
-dotenv.config();
+// 确保 dotenv 配置在最开始就加载
+const result = dotenv.config({ path: resolve(__dirname, '../.env') });
 
-// 在代码开头添加这行来查看是否成功读取
+
 
 async function runAgentTest() {
-  const unifaiAgentApiKey = "c874JUXlSsnL0Z59AoJzJlp4SfR5Fb1Z95zzfSNrQNT";
+  const unifaiAgentApiKey =process.env.UNIFAI_AGENT_API_KEY;
   if (!unifaiAgentApiKey) {
     console.error("错误: 请在 .env 文件中设置 UNIFAI_AGENT_API_KEY。");
     return;
@@ -19,23 +20,23 @@ async function runAgentTest() {
   // === 步骤 1: 获取可用工具定义 (模拟AI获取工具清单) ===
   console.log("正在从 UnifAI 平台获取工具定义...");
   const availableTools = await tools.getTools(); // 使用动态工具发现
+  // const availableTools = await tools.getTools({
+  //   dynamicTools: false,  // Optional: disable dynamic tools
+  //   staticActions: ["lido"]
+  // });
   console.log("成功获取工具定义:", JSON.stringify(availableTools, null, 2));
 
   // === 步骤 2: 模拟 LLM 与工具的交互循环 ===
   // 这里将结合LLM (以OpenAI为例) 来展示完整的工具调用流程
 
-  const openaiApiKey = "sk-c9O245ebb7b867402e006f588cca4fc5d9f691a05cbgiw0W";
+  const openaiApiKey = process.env.OPENAI_API_KEY;
   if (!openaiApiKey) {
     console.error("错误: 请在 .env 文件中设置 OPENAI_API_KEY 以模拟LLM调用。");
     return;
   }
   const openai = new OpenAI({ apiKey: openaiApiKey ,baseURL:"https://api.gptsapi.net/v1",});
 
-  // 如果使用 Gemini:
-  // const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-  // const model = genAI.getGenerativeModel({ model: "gemini-pro" }); // 或者 "gemini-1.5-flash" 等
-
-  let messages: any[] = [{ role: "user",  content: "Swap tokens on bsc using Lido" }];
+  let messages: any[] = [{ role: "user",  content: "lido我需要赎回 0.0002 个 stETH" }];
 
   console.log("\n--- 开始模拟 AI 代理与 LLM 及工具的交互循环 ---");
 
