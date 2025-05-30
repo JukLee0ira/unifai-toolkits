@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "CommonJS",
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "*": ["*", "../*"]
+    },
+    "resolveJsonModule": true,
+    "esModuleInterop": true
+  }
+}
