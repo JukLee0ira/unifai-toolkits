@@ -2,7 +2,6 @@ import { Tools } from 'unifai-sdk';
 import * as dotenv from 'dotenv';
 import OpenAI from 'openai';
 import { resolve } from 'path';
-
 // 确保 dotenv 配置在最开始就加载
 const result = dotenv.config({ path: resolve(__dirname, '../.env') });
 
@@ -20,10 +19,6 @@ async function runAgentTest() {
   // === 步骤 1: 获取可用工具定义 (模拟AI获取工具清单) ===
   console.log("正在从 UnifAI 平台获取工具定义...");
   const availableTools = await tools.getTools(); // 使用动态工具发现
-  // const availableTools = await tools.getTools({
-  //   dynamicTools: false,  // Optional: disable dynamic tools
-  //   staticActions: ["lido"]
-  // });
   console.log("成功获取工具定义:", JSON.stringify(availableTools, null, 2));
 
   // === 步骤 2: 模拟 LLM 与工具的交互循环 ===
