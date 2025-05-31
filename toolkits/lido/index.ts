@@ -90,6 +90,8 @@ async function main() {
     try {
       console.log('开始处理赎回请求，payload:', JSON.stringify(payload, null, 2));
       const unstakeValueWei = BigInt(Math.floor(payload.amount * 1e18));
+      console.log('unstakeValueWei:', unstakeValueWei);
+      const ethurl = 'https://ethereum-holesky-rpc.publicnode.com';
       const unstakeOperationResult=await unstakeEth(ethurl,process.env.ETHEREUM_PRIVATE_KEY,unstakeValueWei);
       console.log('赎回操作结果:', unstakeOperationResult);
       return ctx.result({ message: unstakeOperationResult });
