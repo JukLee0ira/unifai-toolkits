@@ -28,7 +28,7 @@ async function main() {
 
   await toolkit.updateToolkit({
     name: 'Lido',
-    description: "Lido is a liquid staking solution for ETH, and other PoS assets. It allows users to stake their tokens and receive liquid staked tokens (e.g., stETH) in return, which can then be used across various DeFi protocols.",
+    description: "Lido is a liquid staking solution for ETH. It allows users to stake their tokens and receive liquid staked tokens ,and unstake them to receive native tokens.",
   });
 
 
