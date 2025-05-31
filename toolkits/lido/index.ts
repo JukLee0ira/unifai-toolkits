@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import { resolve } from 'path';
-import { stake, unstakeEth } from './lido-sdk';
+import { stake, unstakeEth } from './lido-operations';
 
 // 确保 dotenv 配置在最开始就加载
 const result = dotenv.config({ path: resolve(__dirname, '../../.env') });

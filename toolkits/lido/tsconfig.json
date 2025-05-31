@@ -2,20 +2,25 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "CommonJS",
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "baseUrl": ".",
     "paths": {
-      "*": ["*", "../*"]
+      "*": [
+        "*",
+        "../*"
+      ]
     },
     "resolveJsonModule": true,
     "esModuleInterop": true
   },
   "include": [
-        "*.ts", // 包含根目录下的所有 .ts 文件
-        "toolkits/**/*.ts", // 包含 toolkits 目录及其子目录下的所有 .ts 文件 (根据你的文件结构调整)
-        "lido-sdk.ts" // 包含 toolkits 目录及其子目录下的所有 .ts 文件 (根据你的文件结构调整)
-      ],
-      "exclude": [
-        "node_modules"
-      ]
+    "*.ts", // 包含根目录下的所有 .ts 文件
+    "toolkits/**/*.ts", // 包含 toolkits 目录及其子目录下的所有 .ts 文件 (根据你的文件结构调整)
+    "lido-operations.ts" // 包含 toolkits 目录及其子目录下的所有 .ts 文件 (根据你的文件结构调整)
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

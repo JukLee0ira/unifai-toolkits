@@ -27,9 +27,14 @@ async function runAgentTest() {
     console.error("错误: 请在 .env 文件中设置 OPENAI_API_KEY 以模拟LLM调用。");
     return;
   }
-  const openai = new OpenAI({ apiKey: openaiApiKey, baseURL: "https://api.gptsapi.net/v1", });
+  const openaiBaseUrl = process.env.BASE_URL;
+  if (!openaiBaseUrl) {
+    console.error("错误: 请在 .env 文件中设置 BASE_URL 以模拟LLM调用。");
+    return;
+  }
+  const openai = new OpenAI({ apiKey: openaiApiKey, baseURL: openaiBaseUrl });
 
-  let messages: any[] = [{ role: "user", content: "我想在lido上质押0.0003 个 ETH" }];
+  let messages: any[] = [{ role: "user", content: "帮我查一下地址 `0x10511652EA180CBed6097d30090f43FAF440fa6F` 在以太坊上的 stETH 余额" }];
 
   console.log("\n--- 开始模拟 AI 代理与 LLM 及工具的交互循环 ---");
 
