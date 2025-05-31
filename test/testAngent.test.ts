@@ -8,7 +8,7 @@ const result = dotenv.config({ path: resolve(__dirname, '../.env') });
 async function runAgentTest() {
   const unifaiAgentApiKey = process.env.UNIFAI_AGENT_API_KEY;
   if (!unifaiAgentApiKey) {
-    console.error("错误: 请在 .env 文件中设置 UNIFAI_AGENT_API_KEY。");
+    console.error("error: please set UNIFAI_AGENT_API_KEY in .env file.");
     return;
   }
 
