@@ -5,8 +5,6 @@ import { resolve } from 'path';
 // 确保 dotenv 配置在最开始就加载
 const result = dotenv.config({ path: resolve(__dirname, '../.env') });
 
-
-
 async function runAgentTest() {
   const unifaiAgentApiKey =process.env.UNIFAI_AGENT_API_KEY;
   if (!unifaiAgentApiKey) {
@@ -31,7 +29,7 @@ async function runAgentTest() {
   }
   const openai = new OpenAI({ apiKey: openaiApiKey ,baseURL:"https://api.gptsapi.net/v1",});
 
-  let messages: any[] = [{ role: "user",  content: "我需要在lido平台上unstake 0.0002 个 stETH" }];
+  let messages: any[] = [{ role: "user",  content: "我想知道 Lido 在以太坊上的 APR" }];
 
   console.log("\n--- 开始模拟 AI 代理与 LLM 及工具的交互循环 ---");
 

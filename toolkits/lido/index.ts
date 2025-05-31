@@ -137,7 +137,6 @@ async function main() {
         throw new Error(`Could not resolve address for liquid staked token: ${payload.liquidStakedToken} on ${payload.chain}`);
       }
 
-      if (chain === 'ethereum') {
         console.log(`Fetching stETH balance for ${payload.walletAddress} on Ethereum`);
         // 需要一个 provider 来与以太坊网络交互以进行只读调用
         const provider = ethers.getDefaultProvider(ethurl || 'mainnet'); 
@@ -158,70 +157,14 @@ async function main() {
           balanceWei: balanceWei.toString()
         });
 
-      }  else {
-        throw new Error(`Unsupported chain for getLiquidStakedBalance: ${payload.chain}`);
-      }
+      
 
     } catch (error) {
       return ctx.result({ error: `Failed to get liquid staked balance: ${error}` });
     }
   });
 
-  // ========================================================================
-  // Action: getAPY (获取年化收益率)
-  // ========================================================================
-  toolkit.action({
-    action: 'getAPY',
-    actionDescription: 'Get the current Annual Percentage Yield (APY) for Lido staking on a specific chain.',
-    payloadDescription: {
-      chain: {
-        type: 'string',
-        description: 'The blockchain network (e.g., "ethereum").',
-        required: true,
-        enums: ['ethereum'],
-      },
-      apr: { // 添加 apr 字段
-        type: 'number',
-        description: 'Annual Percentage Rate (APR) for Lido staking. This is a direct yield without compounding.',
-        required: false,
-      },
-    }
-  }, async (ctx: ActionContext, payload: any = {}) => {
-    try {
-      const chain = payload.chain.toLowerCase();
-      
-      if (chain === 'ethereum') {
-        // 使用 Lido staking router 合约获取 APR
-        const provider = ethers.getDefaultProvider(ethurl || 'mainnet');
-        const stakingRouterAddress = '0xB9D7934878B5FB9610B3fE8A5e441e8fad7E293f';
-        const stakingRouterAbi = [
-          "function getStakingAPR() view returns (uint256)"
-        ];
-        
-        const stakingRouter = new ethers.Contract(stakingRouterAddress, stakingRouterAbi, provider);
-        const aprBasisPoints = await stakingRouter.getStakingAPR();
-        const apr = Number(aprBasisPoints) / 100; // Convert basis points to percentage
-        
-        // 计算 APY (假设每天复利)
-        const apy = (1 + apr / 36500) ** 365 - 1;
-        
-        return ctx.result({
-          apr: apr,
-          apy: apy * 100, // Convert to percentage
-          message: `Current Lido staking APR: ${apr.toFixed(2)}%, APY: ${(apy * 100).toFixed(2)}%`
-        });
-        
-      } else {
-        throw new Error(`Unsupported chain for getAPY: ${payload.chain}`);
-      }
-    } catch (error) {
-      return ctx.result({ error: `Failed to get APY: ${error}` });
-    }
-  });
-
   
-  
-
   // 运行 toolkit
   await toolkit.run();
 }
