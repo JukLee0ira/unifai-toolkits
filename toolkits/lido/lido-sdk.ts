@@ -125,6 +125,7 @@ export async function stake(stakeValueWei, mypk) {
     const { stethReceived, sharesReceived } = stakeOperationResult.result;
     console.log(`模拟将收到的 stETH 数量: ${formatEther(stethReceived)}`);
     console.log(`模拟将收到的份额 (shares) 数量: ${formatEther(sharesReceived)}`);
+    console.log(`交易信息: ${stakeOperationResult.result.blockNumber}`);
 
     return `交易哈希: ${txHash}，将收到的 stETH 数量: ${formatEther(stethReceived)}，将收到的份额 (shares) 数量: ${formatEther(sharesReceived)}`;
 
