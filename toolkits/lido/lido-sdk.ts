@@ -88,6 +88,9 @@ export async function stake(stakeValueWei, mypk) {
     console.log(`正在查询账户 ${account.address} 的 ETH 余额...`);
     const balanceWei = await sdk.core.balanceETH(account.address);
     console.log(`账户的 ETH 余额为: ${formatEther(balanceWei)} ETH`);
+    if (balanceWei < stakeValueWei) {
+      throw new Error('账户余额不足，无法进行质押');
+    }
 
     // 准备质押
     console.log(`准备为账户 ${account.address} 质押 ${formatEther(stakeValueWei)} ETH...`);
@@ -107,27 +110,17 @@ export async function stake(stakeValueWei, mypk) {
       const { stethReceived, sharesReceived } = stakeOperationResult.result;
       console.log(`模拟将收到的 stETH 数量: ${formatEther(stethReceived)}`);
       console.log(`模拟将收到的份额 (shares) 数量: ${formatEther(sharesReceived)}`);
+
       return `将收到的 stETH 数量: ${formatEther(stethReceived)} ，将收到的份额 (shares) 数量: ${formatEther(sharesReceived)}`;
     } else {
-      console.log('质押操作模拟未返回明确的 result 字段，请检查 stakeOperationResult 对象:', stakeOperationResult);
       throw new Error('质押操作模拟未返回明确的 result 字段，请检查 stakeOperationResult 对象');
     }
 
 
   } catch (error) {
-    console.error('在 Lido SDK 操作过程中发生错误:', error);
+    console.error('在 stake操作过程中发生错误:', error);
 
-    if (error instanceof Error) {
-      if (error.message.includes('insufficient funds')) {
-        console.error(`错误提示：账户 ${account?.address || 'unknown'} 在 Holesky 测试网上的资金可能不足以质押 ${formatEther(stakeValueWei)} ETH 或支付 Gas 费用。`);
-      } else if (error.message.includes('NETWORK_ERROR') || error.message.toLowerCase().includes('fetchfailed') || error.message.includes('Failecd to fetch')) {
-        console.error(`网络错误：无法连接到 RPC URL (${yourHoleskyRpcUrl})。请检查 URL 是否正确、网络是否通畅，以及 RPC 服务是否正常运行。`);
-      } else if (error.message.includes('invalid url')) {
-        console.error(`错误提示：提供的 RPC URL (${yourHoleskyRpcUrl}) 无效。请检查其格式。`);
-      } else if (error.message.includes('invalid private key')) {
-        console.error('错误提示：私钥格式无效。请确保你的私钥是正确的64位十六进制字符串。');
-      }
-    }
+    return `错误信息: ${error.message}`;
   }
 }
 
