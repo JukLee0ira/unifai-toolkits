@@ -29,7 +29,7 @@ async function runAgentTest() {
   }
   const openai = new OpenAI({ apiKey: openaiApiKey, baseURL: "https://api.gptsapi.net/v1", });
 
-  let messages: any[] = [{ role: "user", content: "我想在lido上质押2000 个 ETH" }];
+  let messages: any[] = [{ role: "user", content: "我想在lido上质押0.0003 个 ETH" }];
 
   console.log("\n--- 开始模拟 AI 代理与 LLM 及工具的交互循环 ---");
 

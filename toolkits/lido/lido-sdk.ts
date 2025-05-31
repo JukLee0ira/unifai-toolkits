@@ -67,22 +67,22 @@ async function initLidoSDK(mypk) {
   });
   console.log('Lido SDK 初始化完成。');
 
-  // 添加调试输出，确保返回值正确
   console.log('initLidoSDK 返回值检查:', {
     sdk: !!sdk,
     account: !!account,
+    walletClient: !!walletClient,
     accountAddress: account?.address
   });
 
-  return [sdk, account];  // 只返回 sdk 和 account
+  return [sdk, account, walletClient];
 }
 // --- 主函数 ---
 // 我们将所有异步操作都放在这个 async 函数中
 export async function stake(stakeValueWei, mypk) {
-  let sdk, account;  // 恢复原来的变量声明
+  let sdk, account, walletClient;
 
   try {
-    [sdk, account] = await initLidoSDK(mypk);
+    [sdk, account, walletClient] = await initLidoSDK(mypk);
 
     // 查询余额
     console.log(`正在查询账户 ${account.address} 的 ETH 余额...`);
@@ -103,24 +103,41 @@ export async function stake(stakeValueWei, mypk) {
       referralAddress: referralAddress,
     });
 
-    console.log('Lido SDK 处理质押操作完成。');
-
-    // 处理质押结果
-    if (stakeOperationResult && stakeOperationResult.result) {
-      const { stethReceived, sharesReceived } = stakeOperationResult.result;
-      console.log(`模拟将收到的 stETH 数量: ${formatEther(stethReceived)}`);
-      console.log(`模拟将收到的份额 (shares) 数量: ${formatEther(sharesReceived)}`);
-
-      return `将收到的 stETH 数量: ${formatEther(stethReceived)} ，将收到的份额 (shares) 数量: ${formatEther(sharesReceived)}`;
-    } else {
-      throw new Error('质押操作模拟未返回明确的 result 字段，请检查 stakeOperationResult 对象');
+    // 检查 stakeOperationResult 是否符合预期结构
+    // 需要有顶层的 'hash' 和嵌套的 'result' 对象
+    if (!stakeOperationResult || !stakeOperationResult.hash || !stakeOperationResult.result) {
+      console.error('质押操作未按预期返回结果（缺少 hash 或 result 对象）:', stakeOperationResult);
+      throw new Error('质押操作未返回有效的交易哈希或结果对象。');
     }
 
+    const txHash = stakeOperationResult.hash; // 直接从 stakeOperationResult 获取交易哈希
+    console.log(`质押交易已发送，交易哈希: ${txHash}，等待确认...`);
+
+    // 使用 walletClient 等待交易确认
+    // 注意：Lido SDK 的 stakeEth 可能已经等待了确认，
+    // 如果 stakeOperationResult 中已经有 receipt，则下面的 waitForTransactionReceipt 可能会立即返回或不需要。
+    // 但为了保险起见和代码一致性，我们仍然调用它。
+    // 如果 stakeOperationResult.receipt 已经存在且有效，viem 的 waitForTransactionReceipt 会处理这种情况。
+    console.log(`质押交易已确认，区块号: ${stakeOperationResult.blockNumber}`);
+
+    console.log('Lido SDK 处理质押操作完成。');
+
+    const { stethReceived, sharesReceived } = stakeOperationResult.result;
+    console.log(`模拟将收到的 stETH 数量: ${formatEther(stethReceived)}`);
+    console.log(`模拟将收到的份额 (shares) 数量: ${formatEther(sharesReceived)}`);
+
+    return `交易哈希: ${txHash}，将收到的 stETH 数量: ${formatEther(stethReceived)}，将收到的份额 (shares) 数量: ${formatEther(sharesReceived)}`;
 
   } catch (error) {
     console.error('在 stake操作过程中发生错误:', error);
-
-    return `错误信息: ${error.message}`;
+    let errorMessage = `错误信息: ${error.message}`;
+    // 尝试从错误对象中获取交易哈希（如果存在）
+    if (error.transactionHash) {
+      errorMessage += `, 交易哈希: ${error.transactionHash}`;
+    } else if (error.cause && error.cause.transactionHash) { // 有时交易哈希可能在 cause 中
+      errorMessage += `, 交易哈希: ${error.cause.transactionHash}`;
+    }
+    return errorMessage;
   }
 }
 
@@ -296,11 +313,11 @@ const spenderAddress = '0x0000000000000000000000000000000000000000';
 const amountToApprove = BigInt(Math.floor(1000 * 1e18));
 
 // 创建异步主函数
-async function main() {
+// async function main() {
 
-  const result = await unstakeEth(PRIVATE_KEY, amountToApprove);
-  console.log(result);
-}
+//   const result = await unstakeEth(PRIVATE_KEY, amountToApprove);
+//   console.log(result);
+// }
 
-// 执行主函数
-main();
+// // 执行主函数
+// main();
