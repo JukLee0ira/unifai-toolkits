@@ -34,7 +34,7 @@ async function runAgentTest() {
   }
   const openai = new OpenAI({ apiKey: openaiApiKey, baseURL: openaiBaseUrl });
 
-  let messages: any[] = [{ role: "user", content: "help me check the stETH balance of address `0x10511652EA180CBed6097d30090f43FAF440fa6F` on Ethereum" }];
+  let messages: any[] = [{ role: "user", content: "我需要在 Lido 上 unstake 0.0002 个 stETH" }];
 
   console.log("\n--- start simulating AI agent, LLM and tool interaction loop ---");
 

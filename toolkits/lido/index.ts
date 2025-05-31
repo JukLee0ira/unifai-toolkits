@@ -53,7 +53,7 @@ async function main() {
       console.log('start to stake, payload:', JSON.stringify(payload, null, 2));
 
       const stakeValueWei = BigInt(Math.floor(payload.amount * 1e18));
-      const stakeOperationResult = await stake(stakeValueWei, process.env.ETHEREUM_PRIVATE_KEY);
+      const stakeOperationResult = await stake(stakeValueWei);
       console.log('stake result:', stakeOperationResult);
 
       return ctx.result({ message: stakeOperationResult });
@@ -83,7 +83,7 @@ async function main() {
       console.log('start to unstake, payload:', JSON.stringify(payload, null, 2));
       const unstakeValueWei = BigInt(Math.floor(payload.amount * 1e18));
       console.log('unstakeValueWei:', unstakeValueWei);
-      const unstakeOperationResult = await unstakeEth(process.env.ETHEREUM_PRIVATE_KEY, unstakeValueWei);
+      const unstakeOperationResult = await unstakeEth(unstakeValueWei);
       console.log('unstake result:', unstakeOperationResult);
       return ctx.result({ message: unstakeOperationResult });
     } catch (error) {

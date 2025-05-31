@@ -14,7 +14,7 @@ import { ethers } from 'ethers';
 
 const result = dotenv.config({ path: resolve(__dirname, '../../.env') });
 
-const PRIVATE_KEY = process.env.ETHEREUM_PRIVATE_KEY;
+const mypk = process.env.ETHEREUM_PRIVATE_KEY;
 const yourHoleskyRpcUrl = process.env.YOUR_HOLESKY_RPC_URL;
 
 // validate and format private key
@@ -76,7 +76,7 @@ async function initLidoSDK(mypk) {
   return [sdk, account, walletClient];
 }
 
-export async function stake(stakeValueWei, mypk) {
+export async function stake(stakeValueWei) {
   let sdk, account, walletClient;
 
   try {
@@ -134,12 +134,11 @@ export async function stake(stakeValueWei, mypk) {
 }
 
 async function approveStEthAllowance(
-  amountToApprove: bigint,
-  mypk: string
+  amountToApprove: bigint
 ): Promise<string | undefined> {
   try {
     // 确保所有参数都已提供
-    if (!yourHoleskyRpcUrl || !amountToApprove || !mypk) {
+    if (!yourHoleskyRpcUrl || !amountToApprove) {
       throw new Error('missing required parameters');
     }
 
@@ -202,11 +201,11 @@ async function approveStEthAllowance(
   }
 }
 
-export async function unstakeEth(privateKey, amountToUnstake) {
+export async function unstakeEth(amountToUnstake) {
   let sdk, account;
   try {
 
-    [sdk, account] = await initLidoSDK(privateKey);
+    [sdk, account] = await initLidoSDK(mypk);
 
 
     console.log(`\n--- check wallet balance ---`);
@@ -234,7 +233,7 @@ export async function unstakeEth(privateKey, amountToUnstake) {
     console.log(`WithdrawalQueue contract address: ${withdrawalQueueAddress}`); // WithdrawalQueue contract address:
 
     // check if user has approved enough allowance
-    await approveStEthAllowance(amountToUnstake, privateKey);
+    await approveStEthAllowance(amountToUnstake);
 
     console.log(`\n--- submit unstake request ---`); // --- Submitting unstake request ---
 
@@ -249,7 +248,7 @@ export async function unstakeEth(privateKey, amountToUnstake) {
     ];
 
     // create wallet and contract instance
-    const formattedKey = formatPrivateKey(privateKey);
+    const formattedKey = formatPrivateKey(mypk);
     const wallet = new ethers.Wallet(formattedKey, provider);
     const withdrawalQueueContract = new ethers.Contract(withdrawalQueueAddress, WITHDRAWAL_QUEUE_ABI, wallet);
 
