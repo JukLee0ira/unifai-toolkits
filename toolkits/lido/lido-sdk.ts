@@ -285,17 +285,8 @@ console.log('unstake 请求已成功提交！');
 
   } catch (error: any) {
     console.error(`\n发生错误: ${error.message}`); // An error occurred:
-    // 更详细的错误日志
-    if (error.code) {
-      console.error(`错误代码: ${error.code}`); // Error Code:
-    }
-    if (error.reason) {
-      console.error(`错误原因: ${error.reason}`); // Error Reason:
-    }
-    if (error.transactionHash) {
-      console.error(`交易哈希: ${error.transactionHash}`); // Transaction Hash:
-    }
-    //TODO: 需要返回错误信息
+
+    return `错误信息: ${error.message}`;
   }
 }
 
@@ -312,14 +303,14 @@ const stakeValueWei = BigInt(Math.floor(stakeValueEth * 1e18));//这个要做初
 
 const ownerAddress = '0x873C36f9Fd02e0C57a393aFE80D14f244fE04378';
 const spenderAddress = '0x0000000000000000000000000000000000000000';
-const amountToApprove = BigInt(Math.floor( 0.0001 * 1e18));
+const amountToApprove = BigInt(Math.floor( 1000 * 1e18));
 
 // 创建异步主函数
-// async function main() {
+async function main() {
 
-//  const result = await unstakeEth( PRIVATE_KEY, amountToApprove);
-//  console.log(result);
-// }
+ const result = await unstakeEth( PRIVATE_KEY, amountToApprove);
+ console.log(result);
+}
 
-// // 执行主函数
-// main();
+// 执行主函数
+main();
