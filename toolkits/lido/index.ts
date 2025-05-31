@@ -18,30 +18,25 @@ async function getTokenAddress(token: string, chain: string): Promise<string> {
   return await getTokenAddressBySymbol(token, chain) || token;
 }
 
-/**
- * 主函数：初始化 Lido Toolkit 并注册所有 action。
- */
+
 async function main() {
-  // 这里创建了工具包实例
+
   const apikey = process.env.UNIFAI_TOOLKIT_API_KEY;
   const ethurl = process.env.ETHEREUM_RPC_URL;
-
   const toolkit = new Toolkit({ apiKey: apikey });
 
-  // 更新 toolkit 的元数据（名称和描述）
+
   await toolkit.updateToolkit({
     name: 'Lido',
     description: "Lido is a liquid staking solution for ETH, and other PoS assets. It allows users to stake their tokens and receive liquid staked tokens (e.g., stETH) in return, which can then be used across various DeFi protocols.",
   });
 
-  // 监听 toolkit 准备就绪事件
+
   toolkit.event('ready', () => {
     console.log('Toolkit is ready to use');
   });
 
-  // ========================================================================
-  // Action: stake (质押原生代币获取流动性质押代币)
-  // ========================================================================
+
   toolkit.action({
     action: 'stake',
     actionDescription: 'Stake native tokens (ETH) to receive corresponding liquid staked tokens (stETH) .',
@@ -60,8 +55,7 @@ async function main() {
       const stakeValueWei = BigInt(Math.floor(payload.amount * 1e18));
       const stakeOperationResult = await stake(stakeValueWei, process.env.ETHEREUM_PRIVATE_KEY);
       console.log('质押操作结果:', stakeOperationResult);
-      // const chain = payload.chain.toLowerCase(); // 获取并标准化链名
-      // // let transactionType: string; // transactionType is not needed if we handle chains 
+
       return ctx.result({ message: stakeOperationResult });
 
     } catch (error) {
@@ -69,13 +63,11 @@ async function main() {
       if (error instanceof Error) {
         console.error('错误堆栈:', error.stack);
       }
-      return ctx.result({ error: `Failed to stake: ${error}` }); // 捕获并返回错误
+      return ctx.result({ error: `Failed to stake: ${error}` });
     }
   });
 
-  // ========================================================================
-  // Action: unstake (赎回流动性质押代币获取原生代币)
-  // ========================================================================
+
   toolkit.action({
     action: 'unstake',
     actionDescription: 'Unstake liquid staked tokens (stETH) to receive native tokens (ETH). Note: unstaking may involve a waiting period depending on the protocol.',
@@ -94,19 +86,11 @@ async function main() {
       const unstakeOperationResult = await unstakeEth(process.env.ETHEREUM_PRIVATE_KEY, unstakeValueWei);
       console.log('赎回操作结果:', unstakeOperationResult);
       return ctx.result({ message: unstakeOperationResult });
-
-
-
-      // unstakeEth(ethurl, process.env.ETHEREUM_PRIVATE_KEY, '0.0001');//TODO: 需要修改为动态参数顺序要对齐
-
     } catch (error) {
       return ctx.result({ error: `Failed to unstake: ${error}` });
     }
   });
 
-  // ========================================================================
-  // Action: getLiquidStakedBalance (获取流动性质押代币余额)
-  // ========================================================================
   toolkit.action({
     action: 'getLiquidStakedBalance',
     actionDescription: 'Get the balance of stETH for a given wallet address.',
@@ -138,7 +122,6 @@ async function main() {
       }
 
       console.log(`Fetching stETH balance for ${payload.walletAddress} on Ethereum`);
-      // 需要一个 provider 来与以太坊网络交互以进行只读调用
       const provider = ethers.getDefaultProvider(ethurl || 'mainnet');
 
       const stEthContractAbi = [
@@ -165,9 +148,8 @@ async function main() {
   });
 
 
-  // 运行 toolkit
+
   await toolkit.run();
 }
 
-// 调用主函数并捕获任何未处理的错误
 main().catch(console.error);

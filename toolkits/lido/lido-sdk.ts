@@ -134,17 +134,9 @@ export async function stake(stakeValueWei, mypk) {
   }
 }
 
-/**
- * 批准 Lido 提款队列合约的 stETH 额度。
- * @param sdk Lido SDK 实例。
- * @param ownerAddress 批准额度的所有者地址。
- * @param spenderAddress 接收批准额度的合约地址（通常是 WithdrawalQueue）。
- * @param amountToApprove 要批准的 stETH 数量（BigNumber 格式）。
- * @returns 批准交易的哈希。
- */
 async function approveStEthAllowance(
-  amountToApprove: bigint,    // 批准金额
-  mypk: string                // 私钥
+  amountToApprove: bigint,
+  mypk: string
 ): Promise<string | undefined> {
   try {
     // 确保所有参数都已提供
@@ -211,12 +203,6 @@ async function approveStEthAllowance(
   }
 }
 
-/**
- * 执行 stETH 的 unstake 操作。
- * @param rpcUrl 以太坊 RPC URL。
- * @param privateKey 用于签署交易的钱包私钥（警告：请勿在生产环境中直接使用私钥！）。
- * @param amountToUnstake 要 unstake 的 stETH 数量（字符串格式，例如 '1.5'）。
- */
 export async function unstakeEth(privateKey, amountToUnstake) {
   let sdk, account;
   try {
@@ -249,7 +235,6 @@ export async function unstakeEth(privateKey, amountToUnstake) {
     console.log(`WithdrawalQueue 合约地址: ${withdrawalQueueAddress}`); // WithdrawalQueue contract address:
 
     // 2. 检查用户是否批准过对应的额度，如果不足则批准
-    //amountToUnstakeWei为最大值，则批准
     await approveStEthAllowance(amountToUnstake, privateKey);
 
     console.log(`\n--- 提交 unstake 请求 ---`); // --- Submitting unstake request ---
@@ -275,7 +260,7 @@ export async function unstakeEth(privateKey, amountToUnstake) {
     await requestTx.wait();
     console.log('unstake 请求已成功提交！');
 
-    console.log(`\n--- 请求成功，获取最新信息 ---`); // --- Request successful, getting latest information ---
+    console.log(`\n--- 请求成功，获取最新信息 ---`);
 
     // 4. 请求成功,提醒用户有等待期，当前余额是多少
     const newStethBalance = await stETHContract.balanceOf(account.address);
@@ -289,28 +274,3 @@ export async function unstakeEth(privateKey, amountToUnstake) {
     return `错误信息: ${error.message}`;
   }
 }
-
-
-// 2. 你的以太坊账户地址 (Holesky 测试网)
-// 这个账户应该在 Holesky 测试网上有一些测试 ETH 用于质押和支付 gas 费
-const yourAccountAddress = '0x873C36f9Fd02e0C57a393aFE80D14f244fE04378'; // 例如: '0x1234567890123456789012345678901234567890'
-
-// 3. 想要质押的 ETH 数量
-const stakeValueEth = 0.0001; // 例如，质押 0.01 ETH
-
-// 将 ETH 数量转换为 Wei (最小单位)，并确保是 bigint 类型
-const stakeValueWei = BigInt(Math.floor(stakeValueEth * 1e18));//这个要做初步的处理，在得到数值之后
-
-const ownerAddress = '0x873C36f9Fd02e0C57a393aFE80D14f244fE04378';
-const spenderAddress = '0x0000000000000000000000000000000000000000';
-const amountToApprove = BigInt(Math.floor(0.00001 * 1e18));
-
-// 创建异步主函数
-async function main() {
-
-  const result = await unstakeEth(PRIVATE_KEY, amountToApprove);
-  console.log(result);
-}
-
-// 执行主函数
-main();
