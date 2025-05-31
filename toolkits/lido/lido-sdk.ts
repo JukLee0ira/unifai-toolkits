@@ -303,14 +303,14 @@ const stakeValueWei = BigInt(Math.floor(stakeValueEth * 1e18));//这个要做初
 
 const ownerAddress = '0x873C36f9Fd02e0C57a393aFE80D14f244fE04378';
 const spenderAddress = '0x0000000000000000000000000000000000000000';
-const amountToApprove = BigInt(Math.floor(1000 * 1e18));
+const amountToApprove = BigInt(Math.floor(0.00001 * 1e18));
 
 // 创建异步主函数
-// async function main() {
+async function main() {
 
-//   const result = await unstakeEth(PRIVATE_KEY, amountToApprove);
-//   console.log(result);
-// }
+  const result = await unstakeEth(PRIVATE_KEY, amountToApprove);
+  console.log(result);
+}
 
-// // 执行主函数
-// main();
+// 执行主函数
+main();
