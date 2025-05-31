@@ -50,18 +50,18 @@ async function main() {
     }
   }, async (ctx: ActionContext, payload: any = {}) => {
     try {
-      console.log('开始处理质押请求，payload:', JSON.stringify(payload, null, 2));
+      console.log('start to stake, payload:', JSON.stringify(payload, null, 2));
 
       const stakeValueWei = BigInt(Math.floor(payload.amount * 1e18));
       const stakeOperationResult = await stake(stakeValueWei, process.env.ETHEREUM_PRIVATE_KEY);
-      console.log('质押操作结果:', stakeOperationResult);
+      console.log('stake result:', stakeOperationResult);
 
       return ctx.result({ message: stakeOperationResult });
 
     } catch (error) {
-      console.error('质押过程中发生错误:', error);
+      console.error('stake error:', error);
       if (error instanceof Error) {
-        console.error('错误堆栈:', error.stack);
+        console.error('error stack:', error.stack);
       }
       return ctx.result({ error: `Failed to stake: ${error}` });
     }
@@ -80,11 +80,11 @@ async function main() {
     }
   }, async (ctx: ActionContext, payload: any = {}) => {
     try {
-      console.log('开始处理赎回请求，payload:', JSON.stringify(payload, null, 2));
+      console.log('start to unstake, payload:', JSON.stringify(payload, null, 2));
       const unstakeValueWei = BigInt(Math.floor(payload.amount * 1e18));
       console.log('unstakeValueWei:', unstakeValueWei);
       const unstakeOperationResult = await unstakeEth(process.env.ETHEREUM_PRIVATE_KEY, unstakeValueWei);
-      console.log('赎回操作结果:', unstakeOperationResult);
+      console.log('unstake result:', unstakeOperationResult);
       return ctx.result({ message: unstakeOperationResult });
     } catch (error) {
       return ctx.result({ error: `Failed to unstake: ${error}` });
