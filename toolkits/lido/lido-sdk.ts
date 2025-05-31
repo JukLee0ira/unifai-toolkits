@@ -76,8 +76,7 @@ async function initLidoSDK(mypk) {
 
   return [sdk, account, walletClient];
 }
-// --- 主函数 ---
-// 我们将所有异步操作都放在这个 async 函数中
+
 export async function stake(stakeValueWei, mypk) {
   let sdk, account, walletClient;
 
@@ -103,8 +102,6 @@ export async function stake(stakeValueWei, mypk) {
       referralAddress: referralAddress,
     });
 
-    // 检查 stakeOperationResult 是否符合预期结构
-    // 需要有顶层的 'hash' 和嵌套的 'result' 对象
     if (!stakeOperationResult || !stakeOperationResult.hash || !stakeOperationResult.result) {
       console.error('质押操作未按预期返回结果（缺少 hash 或 result 对象）:', stakeOperationResult);
       throw new Error('质押操作未返回有效的交易哈希或结果对象。');
@@ -113,11 +110,6 @@ export async function stake(stakeValueWei, mypk) {
     const txHash = stakeOperationResult.hash; // 直接从 stakeOperationResult 获取交易哈希
     console.log(`质押交易已发送，交易哈希: ${txHash}，等待确认...`);
 
-    // 使用 walletClient 等待交易确认
-    // 注意：Lido SDK 的 stakeEth 可能已经等待了确认，
-    // 如果 stakeOperationResult 中已经有 receipt，则下面的 waitForTransactionReceipt 可能会立即返回或不需要。
-    // 但为了保险起见和代码一致性，我们仍然调用它。
-    // 如果 stakeOperationResult.receipt 已经存在且有效，viem 的 waitForTransactionReceipt 会处理这种情况。
     console.log(`质押交易已确认，区块号: ${stakeOperationResult.blockNumber}`);
 
     console.log('Lido SDK 处理质押操作完成。');
