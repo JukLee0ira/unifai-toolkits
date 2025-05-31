@@ -16,7 +16,7 @@ import { ethers } from 'ethers';
 const result = dotenv.config({ path: resolve(__dirname, '../../.env') });
 // 修改私钥处理方式
 const PRIVATE_KEY = process.env.ETHEREUM_PRIVATE_KEY;
-
+const yourHoleskyRpcUrl =process.env.YOUR_HOLESKY_RPC_URL;
 
 // 验证和格式化私钥
 function formatPrivateKey(key: string | undefined): `0x${string}` {
@@ -35,7 +35,7 @@ function formatPrivateKey(key: string | undefined): `0x${string}` {
     return `0x${cleanKey}` as `0x${string}`;
 }
 
-async function initLidoSDK(yourHoleskyRpcUrl,mypk) {
+async function initLidoSDK(mypk) {
   console.log('你好！初始化sdk...');
   
   // 声明在最外层，这样所有代码块都能访问
@@ -81,11 +81,11 @@ async function initLidoSDK(yourHoleskyRpcUrl,mypk) {
 }
 // --- 主函数 ---
 // 我们将所有异步操作都放在这个 async 函数中
-export async function stake(yourHoleskyRpcUrl, stakeValueWei, mypk) {
+export async function stake( stakeValueWei, mypk) {
   let sdk, account;  // 恢复原来的变量声明
 
   try {
-    [sdk, account] = await initLidoSDK(yourHoleskyRpcUrl, mypk);
+    [sdk, account] = await initLidoSDK( mypk);
     
     // 查询余额
     console.log(`正在查询账户 ${account.address} 的 ETH 余额...`);
@@ -143,7 +143,6 @@ export async function stake(yourHoleskyRpcUrl, stakeValueWei, mypk) {
  * @returns 批准交易的哈希。
  */
 async function approveStEthAllowance(
-    yourHoleskyRpcUrl: string,  // RPC URL
     amountToApprove: bigint,    // 批准金额
     mypk: string                // 私钥
 ): Promise<string | undefined> {
@@ -218,11 +217,11 @@ async function approveStEthAllowance(
  * @param privateKey 用于签署交易的钱包私钥（警告：请勿在生产环境中直接使用私钥！）。
  * @param amountToUnstake 要 unstake 的 stETH 数量（字符串格式，例如 '1.5'）。
  */
-export async function unstakeEth(rpcUrl, privateKey, amountToUnstake) {
+export async function unstakeEth( privateKey, amountToUnstake) {
   let sdk, account; 
   try {
 
-    [sdk, account] = await initLidoSDK(rpcUrl, privateKey);
+    [sdk, account] = await initLidoSDK( privateKey);
 
     // 将 unstake 数量转换为 BigNumber
     // const amountToUnstakeWei = parseEther(amountToUnstake);
@@ -236,7 +235,7 @@ export async function unstakeEth(rpcUrl, privateKey, amountToUnstake) {
     const stETH_ADDRESS = '0x3F1c547b21f65e10480dE3ad8E19fAAC46C95034';
     
     // 创建 provider 和合约实例
-    const provider = new ethers.JsonRpcProvider(rpcUrl);
+    const provider = new ethers.JsonRpcProvider(yourHoleskyRpcUrl);
     const stETH_ABI = [
       "function balanceOf(address account) view returns (uint256)"
     ];
@@ -256,7 +255,7 @@ export async function unstakeEth(rpcUrl, privateKey, amountToUnstake) {
 
     // 2. 检查用户是否批准过对应的额度，如果不足则批准
     //amountToUnstakeWei为最大值，则批准
-    await approveStEthAllowance(rpcUrl, amountToUnstake, privateKey);
+    await approveStEthAllowance(amountToUnstake, privateKey);
 
     console.log(`\n--- 提交 unstake 请求 ---`); // --- Submitting unstake request ---
 
@@ -304,12 +303,7 @@ console.log('unstake 请求已成功提交！');
     //TODO: 需要返回错误信息
   }
 }
-// --- 配置部分 ---
-// 重要提示：请将下面的占位符替换为你的实际数据！
 
-// 1. 你的 Holesky 测试网 RPC URL
-// 你可以从 Alchemy, Infura 等服务获取
-const yourHoleskyRpcUrl = 'https://ethereum-holesky-rpc.publicnode.com'; // 例如: 'https://holesky.infura.io/v3/YOUR_INFURA_PROJECT_ID'
 
 // 2. 你的以太坊账户地址 (Holesky 测试网)
 // 这个账户应该在 Holesky 测试网上有一些测试 ETH 用于质押和支付 gas 费
@@ -351,9 +345,15 @@ async function main() {
   //       console.error('执行失败:', error);
   //   }
   //unstakeEth
- const result = await unstakeEth(yourHoleskyRpcUrl, PRIVATE_KEY, amountToApprove);
+  // --- 配置部分 ---
+// 重要提示：请将下面的占位符替换为你的实际数据！
+
+// 1. 你的 Holesky 测试网 RPC URL
+// 你可以从 Alchemy, Infura 等服务获取
+ // 例如: 'https://holesky.infura.io/v3/YOUR_INFURA_PROJECT_ID'
+ const result = await unstakeEth( PRIVATE_KEY, amountToApprove);
  console.log(result);
 }
 
 // 执行主函数
-// main();
+main();

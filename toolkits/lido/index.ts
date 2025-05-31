@@ -56,9 +56,9 @@ async function main() {
   }, async (ctx: ActionContext, payload: any = {}) => {
     try {
       console.log('开始处理质押请求，payload:', JSON.stringify(payload, null, 2));
-      const yourHoleskyRpcUrl = 'https://ethereum-holesky-rpc.publicnode.com'; // 例如: 'https://holesky.infura.io/v3/YOUR_INFURA_PROJECT_ID'//TODO: 多处用到作为全局变量
+
       const stakeValueWei = BigInt(Math.floor(payload.amount * 1e18));
-      const stakeOperationResult=await stake(yourHoleskyRpcUrl,stakeValueWei,process.env.ETHEREUM_PRIVATE_KEY);
+      const stakeOperationResult=await stake(stakeValueWei,process.env.ETHEREUM_PRIVATE_KEY);
       console.log('质押操作结果:', stakeOperationResult);
       // const chain = payload.chain.toLowerCase(); // 获取并标准化链名
       // // let transactionType: string; // transactionType is not needed if we handle chains 
@@ -91,8 +91,7 @@ async function main() {
       console.log('开始处理赎回请求，payload:', JSON.stringify(payload, null, 2));
       const unstakeValueWei = BigInt(Math.floor(payload.amount * 1e18));
       console.log('unstakeValueWei:', unstakeValueWei);
-      const ethurl = 'https://ethereum-holesky-rpc.publicnode.com';
-      const unstakeOperationResult=await unstakeEth(ethurl,process.env.ETHEREUM_PRIVATE_KEY,unstakeValueWei);
+      const unstakeOperationResult=await unstakeEth(process.env.ETHEREUM_PRIVATE_KEY,unstakeValueWei);
       console.log('赎回操作结果:', unstakeOperationResult);
       return ctx.result({ message: unstakeOperationResult });
       
