@@ -223,11 +223,6 @@ export async function unstakeEth( privateKey, amountToUnstake) {
 
     [sdk, account] = await initLidoSDK( privateKey);
 
-    // 将 unstake 数量转换为 BigNumber
-    // const amountToUnstakeWei = parseEther(amountToUnstake);
-    // if (amountToUnstakeWei === BigInt(0)) {
-    //   throw new Error('Unstake 数量必须大于零。'); // Unstake amount must be greater than zero.
-    // }
 
     console.log(`\n--- 检查钱包余额 ---`);
 
@@ -321,36 +316,7 @@ const amountToApprove = BigInt(Math.floor( 0.0001 * 1e18));
 
 // 创建异步主函数
 async function main() {
-   //approveStEthAllowance
-  // try {
-  //       // 确保参数都已正确设置
-  //       if (!yourHoleskyRpcUrl || !amountToApprove || !PRIVATE_KEY) {
-  //           throw new Error('请检查所有必要参数是否已设置');
-  //       }
 
-  //       console.log('准备调用 approveStEthAllowance...');
-  //       console.log('使用的 RPC URL:', yourHoleskyRpcUrl);
-  //       console.log('批准金额:', formatEther(amountToApprove), 'ETH');
-
-  //       const result = await approveStEthAllowance(
-  //           yourHoleskyRpcUrl,
-  //           amountToApprove,
-  //           PRIVATE_KEY
-  //       );
-
-  //       if (result) {
-  //           console.log('批准交易成功，交易哈希:', result);
-  //       }
-  //   } catch (error) {
-  //       console.error('执行失败:', error);
-  //   }
-  //unstakeEth
-  // --- 配置部分 ---
-// 重要提示：请将下面的占位符替换为你的实际数据！
-
-// 1. 你的 Holesky 测试网 RPC URL
-// 你可以从 Alchemy, Infura 等服务获取
- // 例如: 'https://holesky.infura.io/v3/YOUR_INFURA_PROJECT_ID'
  const result = await unstakeEth( PRIVATE_KEY, amountToApprove);
  console.log(result);
 }
