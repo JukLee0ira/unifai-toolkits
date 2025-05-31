@@ -57,9 +57,6 @@ async function runAgentTest() {
       const toolCallResults = await tools.callTools(responseMessage.tool_calls); // 执行工具调用
       messages.push(...toolCallResults); // 将工具结果添加到消息历史，供LLM下一次处理
       console.log("工具调用结果已添加至消息历史。");
-
-      // 如果工具调用成功并有结果，循环将继续，LLM会再次处理包含工具结果的消息。
-      // 如果这里没有更多的 tool_calls，或者 LLM 已经得到了满意的答案，它就不会再生成 tool_calls。
     } else {
       // === 步骤 4: 如果 LLM 没有生成工具调用，则输出最终响应 ===
       console.log("\nLLM 已生成最终响应，没有新的工具调用。");
