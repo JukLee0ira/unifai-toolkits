@@ -6,7 +6,7 @@ import { resolve } from 'path';
 const result = dotenv.config({ path: resolve(__dirname, '../.env') });
 
 async function runAgentTest() {
-  const unifaiAgentApiKey =process.env.UNIFAI_AGENT_API_KEY;
+  const unifaiAgentApiKey = process.env.UNIFAI_AGENT_API_KEY;
   if (!unifaiAgentApiKey) {
     console.error("错误: 请在 .env 文件中设置 UNIFAI_AGENT_API_KEY。");
     return;
@@ -27,9 +27,9 @@ async function runAgentTest() {
     console.error("错误: 请在 .env 文件中设置 OPENAI_API_KEY 以模拟LLM调用。");
     return;
   }
-  const openai = new OpenAI({ apiKey: openaiApiKey ,baseURL:"https://api.gptsapi.net/v1",});
+  const openai = new OpenAI({ apiKey: openaiApiKey, baseURL: "https://api.gptsapi.net/v1", });
 
-  let messages: any[] = [{ role: "user",  content: "lido我需要unstake20000个 stETH" }];
+  let messages: any[] = [{ role: "user", content: "lido我需要unstake20000个 stETH" }];
 
   console.log("\n--- 开始模拟 AI 代理与 LLM 及工具的交互循环 ---");
 

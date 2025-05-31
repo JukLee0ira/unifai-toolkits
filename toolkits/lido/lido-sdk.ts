@@ -16,77 +16,74 @@ import { ethers } from 'ethers';
 const result = dotenv.config({ path: resolve(__dirname, '../../.env') });
 // 修改私钥处理方式
 const PRIVATE_KEY = process.env.ETHEREUM_PRIVATE_KEY;
-const yourHoleskyRpcUrl =process.env.YOUR_HOLESKY_RPC_URL;
+const yourHoleskyRpcUrl = process.env.YOUR_HOLESKY_RPC_URL;
 
 // 验证和格式化私钥
 function formatPrivateKey(key: string | undefined): `0x${string}` {
-    if (!key) {
-        throw new Error('私钥未设置');
-    }
-    
-    // 移除可能存在的 '0x' 前缀
-    const cleanKey = key.replace('0x', '');
-    
-    // 验证是否是有效的64位十六进制
-    if (!/^[0-9a-fA-F]{64}$/.test(cleanKey)) {
-        throw new Error('无效的私钥格式：需要64位十六进制字符');
-    }
-    
-    return `0x${cleanKey}` as `0x${string}`;
+  if (!key) {
+    throw new Error('私钥未设置');
+  }
+
+  // 移除可能存在的 '0x' 前缀
+  const cleanKey = key.replace('0x', '');
+
+  // 验证是否是有效的64位十六进制
+  if (!/^[0-9a-fA-F]{64}$/.test(cleanKey)) {
+    throw new Error('无效的私钥格式：需要64位十六进制字符');
+  }
+
+  return `0x${cleanKey}` as `0x${string}`;
 }
 
 async function initLidoSDK(mypk) {
-  console.log('你好！初始化sdk...');
-  
-  // 声明在最外层，这样所有代码块都能访问
   let account;
-    const formattedKey = formatPrivateKey(mypk);
-    account = privateKeyToAccount(formattedKey);
-    
-    console.log(`将使用账户: ${account.address}`);
-    console.log(`将连接到 RPC: ${yourHoleskyRpcUrl}`);
+  const formattedKey = formatPrivateKey(mypk);
+  account = privateKeyToAccount(formattedKey);
 
-    // 2. 创建 WalletClient（用于签名交易）
-    console.log('正在创建 Viem WalletClient...');
-    const walletClient = createWalletClient({
-      account,
-      chain: holesky,
-      transport: http(yourHoleskyRpcUrl)
-    });
+  console.log(`将使用账户: ${account.address}`);
+  console.log(`将连接到 RPC: ${yourHoleskyRpcUrl}`);
 
-    // 3. 创建 PublicClient（用于读取操作）
-    console.log('正在创建 Viem PublicClient...');
-    const publicClient = createPublicClient({
-      chain: holesky,
-      transport: http(yourHoleskyRpcUrl)
-    });
+  // 2. 创建 WalletClient（用于签名交易）
+  console.log('正在创建 Viem WalletClient...');
+  const walletClient = createWalletClient({
+    account,
+    chain: holesky,
+    transport: http(yourHoleskyRpcUrl)
+  });
 
-    // 4. 初始化 Lido SDK（使用 WalletClient）
-    console.log('正在初始化 Lido SDK...');
-    const sdk = new LidoSDK({
-      chainId: holesky.id,
-      rpcUrls: [yourHoleskyRpcUrl],
-      web3Provider: walletClient  // 恢复使用 WalletClient
-    });
-    console.log('Lido SDK 初始化完成。');
-    
-    // 添加调试输出，确保返回值正确
-    console.log('initLidoSDK 返回值检查:', { 
-        sdk: !!sdk, 
-        account: !!account, 
-        accountAddress: account?.address
-    });
-    
-    return [sdk, account];  // 只返回 sdk 和 account
+  // 3. 创建 PublicClient（用于读取操作）
+  console.log('正在创建 Viem PublicClient...');
+  const publicClient = createPublicClient({
+    chain: holesky,
+    transport: http(yourHoleskyRpcUrl)
+  });
+
+  // 4. 初始化 Lido SDK（使用 WalletClient）
+  console.log('正在初始化 Lido SDK...');
+  const sdk = new LidoSDK({
+    chainId: holesky.id,
+    rpcUrls: [yourHoleskyRpcUrl],
+    web3Provider: walletClient  // 恢复使用 WalletClient
+  });
+  console.log('Lido SDK 初始化完成。');
+
+  // 添加调试输出，确保返回值正确
+  console.log('initLidoSDK 返回值检查:', {
+    sdk: !!sdk,
+    account: !!account,
+    accountAddress: account?.address
+  });
+
+  return [sdk, account];  // 只返回 sdk 和 account
 }
 // --- 主函数 ---
 // 我们将所有异步操作都放在这个 async 函数中
-export async function stake( stakeValueWei, mypk) {
+export async function stake(stakeValueWei, mypk) {
   let sdk, account;  // 恢复原来的变量声明
 
   try {
-    [sdk, account] = await initLidoSDK( mypk);
-    
+    [sdk, account] = await initLidoSDK(mypk);
+
     // 查询余额
     console.log(`正在查询账户 ${account.address} 的 ETH 余额...`);
     const balanceWei = await sdk.core.balanceETH(account.address);
@@ -98,9 +95,9 @@ export async function stake( stakeValueWei, mypk) {
     const referralAddress = '0x0000000000000000000000000000000000000000';
 
     const stakeOperationResult = await sdk.stake.stakeEth({
-        account: account,
-        value: stakeValueWei,
-        referralAddress: referralAddress,
+      account: account,
+      value: stakeValueWei,
+      referralAddress: referralAddress,
     });
 
     console.log('Lido SDK 处理质押操作完成。');
@@ -110,26 +107,26 @@ export async function stake( stakeValueWei, mypk) {
       const { stethReceived, sharesReceived } = stakeOperationResult.result;
       console.log(`模拟将收到的 stETH 数量: ${formatEther(stethReceived)}`);
       console.log(`模拟将收到的份额 (shares) 数量: ${formatEther(sharesReceived)}`);
-	  return `将收到的 stETH 数量: ${formatEther(stethReceived)} ，将收到的份额 (shares) 数量: ${formatEther(sharesReceived)}`;
+      return `将收到的 stETH 数量: ${formatEther(stethReceived)} ，将收到的份额 (shares) 数量: ${formatEther(sharesReceived)}`;
     } else {
       console.log('质押操作模拟未返回明确的 result 字段，请检查 stakeOperationResult 对象:', stakeOperationResult);
-	  throw new Error('质押操作模拟未返回明确的 result 字段，请检查 stakeOperationResult 对象');
+      throw new Error('质押操作模拟未返回明确的 result 字段，请检查 stakeOperationResult 对象');
     }
-	
+
 
   } catch (error) {
     console.error('在 Lido SDK 操作过程中发生错误:', error);
-    
+
     if (error instanceof Error) {
-        if (error.message.includes('insufficient funds')) {
-            console.error(`错误提示：账户 ${account?.address || 'unknown'} 在 Holesky 测试网上的资金可能不足以质押 ${formatEther(stakeValueWei)} ETH 或支付 Gas 费用。`);
-        } else if (error.message.includes('NETWORK_ERROR') || error.message.toLowerCase().includes('fetchfailed') || error.message.includes('Failecd to fetch')) {
-            console.error(`网络错误：无法连接到 RPC URL (${yourHoleskyRpcUrl})。请检查 URL 是否正确、网络是否通畅，以及 RPC 服务是否正常运行。`);
-        } else if (error.message.includes('invalid url')) {
-            console.error(`错误提示：提供的 RPC URL (${yourHoleskyRpcUrl}) 无效。请检查其格式。`);
-        } else if (error.message.includes('invalid private key')) {
-            console.error('错误提示：私钥格式无效。请确保你的私钥是正确的64位十六进制字符串。');
-        }
+      if (error.message.includes('insufficient funds')) {
+        console.error(`错误提示：账户 ${account?.address || 'unknown'} 在 Holesky 测试网上的资金可能不足以质押 ${formatEther(stakeValueWei)} ETH 或支付 Gas 费用。`);
+      } else if (error.message.includes('NETWORK_ERROR') || error.message.toLowerCase().includes('fetchfailed') || error.message.includes('Failecd to fetch')) {
+        console.error(`网络错误：无法连接到 RPC URL (${yourHoleskyRpcUrl})。请检查 URL 是否正确、网络是否通畅，以及 RPC 服务是否正常运行。`);
+      } else if (error.message.includes('invalid url')) {
+        console.error(`错误提示：提供的 RPC URL (${yourHoleskyRpcUrl}) 无效。请检查其格式。`);
+      } else if (error.message.includes('invalid private key')) {
+        console.error('错误提示：私钥格式无效。请确保你的私钥是正确的64位十六进制字符串。');
+      }
     }
   }
 }
@@ -143,72 +140,72 @@ export async function stake( stakeValueWei, mypk) {
  * @returns 批准交易的哈希。
  */
 async function approveStEthAllowance(
-    amountToApprove: bigint,    // 批准金额
-    mypk: string                // 私钥
+  amountToApprove: bigint,    // 批准金额
+  mypk: string                // 私钥
 ): Promise<string | undefined> {
-    try {
-        // 确保所有参数都已提供
-        if (!yourHoleskyRpcUrl || !amountToApprove || !mypk) {
-            throw new Error('缺少必要参数');
-        }
-
-        console.log('初始化 ethers provider 和 wallet...');
-        
-        // 创建 provider
-        const provider = new ethers.JsonRpcProvider(yourHoleskyRpcUrl);
-        
-        // 创建 wallet
-        const formattedKey = formatPrivateKey(mypk);
-        const wallet = new ethers.Wallet(formattedKey, provider);
-        
-        console.log(`将使用账户: ${wallet.address}`);
-
-        // stETH 合约地址 (Holesky 测试网)
-        const stETH_ADDRESS = '0x3F1c547b21f65e10480dE3ad8E19fAAC46C95034';
-        // Withdrawal Queue 合约地址 (Holesky 测试网)  
-        const WITHDRAWAL_QUEUE_ADDRESS = '0xc7cc160b58F8Bb0baC94b80847E2CF2800565C50';
-        
-        // stETH 合约 ABI (只需要 allowance 和 approve 方法)
-        const stETH_ABI = [
-            "function allowance(address owner, address spender) view returns (uint256)",
-            "function approve(address spender, uint256 amount) returns (bool)"
-        ];
-
-        console.log(`\n--- 检查批准额度 ---`);
-        console.log(`stETH 合约地址: ${stETH_ADDRESS}`);
-        console.log(`Withdrawal Queue 地址: ${WITHDRAWAL_QUEUE_ADDRESS}`);
-        
-        // 创建合约实例
-        const stETHContract = new ethers.Contract(stETH_ADDRESS, stETH_ABI, wallet);
-
-        // 查询当前批准额度
-        console.log(`查询当前批准额度，参数：owner=${wallet.address}, spender=${WITHDRAWAL_QUEUE_ADDRESS}`);
-        const currentAllowance = await stETHContract.allowance(wallet.address, WITHDRAWAL_QUEUE_ADDRESS);
-        console.log(`当前已批准的额度: ${ethers.formatEther(currentAllowance)} stETH`);
-
-        // 检查是否需要批准
-        if (currentAllowance < amountToApprove) {
-            console.log('批准的额度不足，正在发送批准交易...');
-            
-            // 发送批准交易
-            const approveTx = await stETHContract.approve(WITHDRAWAL_QUEUE_ADDRESS, amountToApprove);
-            console.log(`批准交易哈希: ${approveTx.hash}`);
-            
-            // 等待交易确认
-            console.log('等待交易确认...');
-            const receipt = await approveTx.wait();
-            console.log(`交易已确认，区块号: ${receipt.blockNumber}`);
-            console.log('stETH 额度批准成功！');
-            
-            return approveTx.hash;
-        } else {
-            console.log('已批准的额度足够，无需再次批准。');
-            return undefined;
-        }
-    } catch (error) {
-        console.error('批准额度时发生错误:', error);
-        throw error;
+  try {
+    // 确保所有参数都已提供
+    if (!yourHoleskyRpcUrl || !amountToApprove || !mypk) {
+      throw new Error('缺少必要参数');
     }
+
+    console.log('初始化 ethers provider 和 wallet...');
+
+    // 创建 provider
+    const provider = new ethers.JsonRpcProvider(yourHoleskyRpcUrl);
+
+    // 创建 wallet
+    const formattedKey = formatPrivateKey(mypk);
+    const wallet = new ethers.Wallet(formattedKey, provider);
+
+    console.log(`将使用账户: ${wallet.address}`);
+
+    // stETH 合约地址 (Holesky 测试网)
+    const stETH_ADDRESS = '0x3F1c547b21f65e10480dE3ad8E19fAAC46C95034';
+    // Withdrawal Queue 合约地址 (Holesky 测试网)  
+    const WITHDRAWAL_QUEUE_ADDRESS = '0xc7cc160b58F8Bb0baC94b80847E2CF2800565C50';
+
+    // stETH 合约 ABI (只需要 allowance 和 approve 方法)
+    const stETH_ABI = [
+      "function allowance(address owner, address spender) view returns (uint256)",
+      "function approve(address spender, uint256 amount) returns (bool)"
+    ];
+
+    console.log(`\n--- 检查批准额度 ---`);
+    console.log(`stETH 合约地址: ${stETH_ADDRESS}`);
+    console.log(`Withdrawal Queue 地址: ${WITHDRAWAL_QUEUE_ADDRESS}`);
+
+    // 创建合约实例
+    const stETHContract = new ethers.Contract(stETH_ADDRESS, stETH_ABI, wallet);
+
+    // 查询当前批准额度
+    console.log(`查询当前批准额度，参数：owner=${wallet.address}, spender=${WITHDRAWAL_QUEUE_ADDRESS}`);
+    const currentAllowance = await stETHContract.allowance(wallet.address, WITHDRAWAL_QUEUE_ADDRESS);
+    console.log(`当前已批准的额度: ${ethers.formatEther(currentAllowance)} stETH`);
+
+    // 检查是否需要批准
+    if (currentAllowance < amountToApprove) {
+      console.log('批准的额度不足，正在发送批准交易...');
+
+      // 发送批准交易
+      const approveTx = await stETHContract.approve(WITHDRAWAL_QUEUE_ADDRESS, amountToApprove);
+      console.log(`批准交易哈希: ${approveTx.hash}`);
+
+      // 等待交易确认
+      console.log('等待交易确认...');
+      const receipt = await approveTx.wait();
+      console.log(`交易已确认，区块号: ${receipt.blockNumber}`);
+      console.log('stETH 额度批准成功！');
+
+      return approveTx.hash;
+    } else {
+      console.log('已批准的额度足够，无需再次批准。');
+      return undefined;
+    }
+  } catch (error) {
+    console.error('批准额度时发生错误:', error);
+    throw error;
+  }
 }
 
 /**
@@ -217,18 +214,18 @@ async function approveStEthAllowance(
  * @param privateKey 用于签署交易的钱包私钥（警告：请勿在生产环境中直接使用私钥！）。
  * @param amountToUnstake 要 unstake 的 stETH 数量（字符串格式，例如 '1.5'）。
  */
-export async function unstakeEth( privateKey, amountToUnstake) {
-  let sdk, account; 
+export async function unstakeEth(privateKey, amountToUnstake) {
+  let sdk, account;
   try {
 
-    [sdk, account] = await initLidoSDK( privateKey);
+    [sdk, account] = await initLidoSDK(privateKey);
 
 
     console.log(`\n--- 检查钱包余额 ---`);
 
     // stETH 合约地址 (Holesky 测试网)
     const stETH_ADDRESS = '0x3F1c547b21f65e10480dE3ad8E19fAAC46C95034';
-    
+
     // 创建 provider 和合约实例
     const provider = new ethers.JsonRpcProvider(yourHoleskyRpcUrl);
     const stETH_ABI = [
@@ -256,24 +253,24 @@ export async function unstakeEth( privateKey, amountToUnstake) {
 
     console.log(`正在提交 unstake 请求，数量: ${ethers.formatEther(amountToUnstake)} stETH...`);
 
-// WithdrawalQueue 合约 ABI 扩展，添加获取等待时间的方法
-const WITHDRAWAL_QUEUE_ABI = [
-    "function requestWithdrawals(uint256[] amounts, address owner) returns (uint256[] requestIds)",
-    "function getLastCheckpointIndex() view returns (uint256)",
-    "function calculateExpectedCheckpoint() view returns (uint256 expectedCheckpoint)",
-    "function getLastRequestTimestamp() view returns (uint256)"
-];
+    // WithdrawalQueue 合约 ABI 扩展，添加获取等待时间的方法
+    const WITHDRAWAL_QUEUE_ABI = [
+      "function requestWithdrawals(uint256[] amounts, address owner) returns (uint256[] requestIds)",
+      "function getLastCheckpointIndex() view returns (uint256)",
+      "function calculateExpectedCheckpoint() view returns (uint256 expectedCheckpoint)",
+      "function getLastRequestTimestamp() view returns (uint256)"
+    ];
 
-// 创建 wallet 和合约实例
-const formattedKey = formatPrivateKey(privateKey);
-const wallet = new ethers.Wallet(formattedKey, provider);
-const withdrawalQueueContract = new ethers.Contract(withdrawalQueueAddress, WITHDRAWAL_QUEUE_ABI, wallet);
+    // 创建 wallet 和合约实例
+    const formattedKey = formatPrivateKey(privateKey);
+    const wallet = new ethers.Wallet(formattedKey, provider);
+    const withdrawalQueueContract = new ethers.Contract(withdrawalQueueAddress, WITHDRAWAL_QUEUE_ABI, wallet);
 
-// 调用 requestWithdrawals 方法
-const requestTx = await withdrawalQueueContract.requestWithdrawals([amountToUnstake], wallet.address);
-console.log(`unstake 交易哈希: ${requestTx.hash}`);
-await requestTx.wait();
-console.log('unstake 请求已成功提交！');
+    // 调用 requestWithdrawals 方法
+    const requestTx = await withdrawalQueueContract.requestWithdrawals([amountToUnstake], wallet.address);
+    console.log(`unstake 交易哈希: ${requestTx.hash}`);
+    await requestTx.wait();
+    console.log('unstake 请求已成功提交！');
 
     console.log(`\n--- 请求成功，获取最新信息 ---`); // --- Request successful, getting latest information ---
 
@@ -281,7 +278,7 @@ console.log('unstake 请求已成功提交！');
     const newStethBalance = await stETHContract.balanceOf(account.address);
     console.log(`钱包中的 stETH 余额: ${ethers.formatEther(newStethBalance)} stETH`);
 
-   return `哈希: ${requestTx.hash} 钱包中的 stETH 余额: ${ethers.formatEther(newStethBalance)} stETH`;
+    return `哈希: ${requestTx.hash} 钱包中的 stETH 余额: ${ethers.formatEther(newStethBalance)} stETH`;
 
   } catch (error: any) {
     console.error(`\n发生错误: ${error.message}`); // An error occurred:
@@ -303,13 +300,13 @@ const stakeValueWei = BigInt(Math.floor(stakeValueEth * 1e18));//这个要做初
 
 const ownerAddress = '0x873C36f9Fd02e0C57a393aFE80D14f244fE04378';
 const spenderAddress = '0x0000000000000000000000000000000000000000';
-const amountToApprove = BigInt(Math.floor( 1000 * 1e18));
+const amountToApprove = BigInt(Math.floor(1000 * 1e18));
 
 // 创建异步主函数
 async function main() {
 
- const result = await unstakeEth( PRIVATE_KEY, amountToApprove);
- console.log(result);
+  const result = await unstakeEth(PRIVATE_KEY, amountToApprove);
+  console.log(result);
 }
 
 // 执行主函数

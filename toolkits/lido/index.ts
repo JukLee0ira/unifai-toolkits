@@ -11,7 +11,7 @@ import { getTokenAddressBySymbol } from '../common/tokenaddress';
 import { ethers } from 'ethers';
 
 
-async function getTokenAddress(token: string, chain: string) : Promise<string> {
+async function getTokenAddress(token: string, chain: string): Promise<string> {
   if (ethers.isAddress(token.toLowerCase())) {
     return token.toLowerCase();
   }
@@ -23,9 +23,9 @@ async function getTokenAddress(token: string, chain: string) : Promise<string> {
  */
 async function main() {
   // 这里创建了工具包实例
-  const apikey=process.env.UNIFAI_TOOLKIT_API_KEY;
-  const ethurl=process.env.ETHEREUM_RPC_URL;
-  
+  const apikey = process.env.UNIFAI_TOOLKIT_API_KEY;
+  const ethurl = process.env.ETHEREUM_RPC_URL;
+
   const toolkit = new Toolkit({ apiKey: apikey });
 
   // 更新 toolkit 的元数据（名称和描述）
@@ -51,19 +51,19 @@ async function main() {
         description: 'The amount of native token (ETH) to stake.',
         required: true,
       },
-  
+
     }
   }, async (ctx: ActionContext, payload: any = {}) => {
     try {
       console.log('开始处理质押请求，payload:', JSON.stringify(payload, null, 2));
 
       const stakeValueWei = BigInt(Math.floor(payload.amount * 1e18));
-      const stakeOperationResult=await stake(stakeValueWei,process.env.ETHEREUM_PRIVATE_KEY);
+      const stakeOperationResult = await stake(stakeValueWei, process.env.ETHEREUM_PRIVATE_KEY);
       console.log('质押操作结果:', stakeOperationResult);
       // const chain = payload.chain.toLowerCase(); // 获取并标准化链名
       // // let transactionType: string; // transactionType is not needed if we handle chains 
-     return ctx.result({ message: stakeOperationResult });
-        
+      return ctx.result({ message: stakeOperationResult });
+
     } catch (error) {
       console.error('质押过程中发生错误:', error);
       if (error instanceof Error) {
@@ -91,14 +91,14 @@ async function main() {
       console.log('开始处理赎回请求，payload:', JSON.stringify(payload, null, 2));
       const unstakeValueWei = BigInt(Math.floor(payload.amount * 1e18));
       console.log('unstakeValueWei:', unstakeValueWei);
-      const unstakeOperationResult=await unstakeEth(process.env.ETHEREUM_PRIVATE_KEY,unstakeValueWei);
+      const unstakeOperationResult = await unstakeEth(process.env.ETHEREUM_PRIVATE_KEY, unstakeValueWei);
       console.log('赎回操作结果:', unstakeOperationResult);
       return ctx.result({ message: unstakeOperationResult });
-      
 
-     
+
+
       // unstakeEth(ethurl, process.env.ETHEREUM_PRIVATE_KEY, '0.0001');//TODO: 需要修改为动态参数顺序要对齐
-   
+
     } catch (error) {
       return ctx.result({ error: `Failed to unstake: ${error}` });
     }
@@ -137,34 +137,34 @@ async function main() {
         throw new Error(`Could not resolve address for liquid staked token: ${payload.liquidStakedToken} on ${payload.chain}`);
       }
 
-        console.log(`Fetching stETH balance for ${payload.walletAddress} on Ethereum`);
-        // 需要一个 provider 来与以太坊网络交互以进行只读调用
-        const provider = ethers.getDefaultProvider(ethurl || 'mainnet'); 
-        
-        const stEthContractAbi = [
-          "function balanceOf(address account) view returns (uint256)"
-        ];
-        const stEthContract = new ethers.Contract(liquidStakedTokenAddress, stEthContractAbi, provider);
+      console.log(`Fetching stETH balance for ${payload.walletAddress} on Ethereum`);
+      // 需要一个 provider 来与以太坊网络交互以进行只读调用
+      const provider = ethers.getDefaultProvider(ethurl || 'mainnet');
 
-        const balanceWei = await stEthContract.balanceOf(payload.walletAddress);
-        const balanceEth = ethers.formatEther(balanceWei);
+      const stEthContractAbi = [
+        "function balanceOf(address account) view returns (uint256)"
+      ];
+      const stEthContract = new ethers.Contract(liquidStakedTokenAddress, stEthContractAbi, provider);
 
-        console.log('Balance of stETH for', payload.walletAddress, 'on Ethereum:', balanceEth);
+      const balanceWei = await stEthContract.balanceOf(payload.walletAddress);
+      const balanceEth = ethers.formatEther(balanceWei);
 
-        return ctx.result({
-          message: `Balance of ${payload.liquidStakedToken} for ${payload.walletAddress} on ${chain}: ${balanceEth}`,
-          balance: balanceEth,
-          balanceWei: balanceWei.toString()
-        });
+      console.log('Balance of stETH for', payload.walletAddress, 'on Ethereum:', balanceEth);
 
-      
+      return ctx.result({
+        message: `Balance of ${payload.liquidStakedToken} for ${payload.walletAddress} on ${chain}: ${balanceEth}`,
+        balance: balanceEth,
+        balanceWei: balanceWei.toString()
+      });
+
+
 
     } catch (error) {
       return ctx.result({ error: `Failed to get liquid staked balance: ${error}` });
     }
   });
 
-  
+
   // 运行 toolkit
   await toolkit.run();
 }
