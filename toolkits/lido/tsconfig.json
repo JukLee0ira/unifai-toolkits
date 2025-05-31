@@ -16,9 +16,9 @@
     "esModuleInterop": true
   },
   "include": [
-    "*.ts", // 包含根目录下的所有 .ts 文件
-    "toolkits/**/*.ts", // 包含 toolkits 目录及其子目录下的所有 .ts 文件 (根据你的文件结构调整)
-    "lido-operations.ts" // 包含 toolkits 目录及其子目录下的所有 .ts 文件 (根据你的文件结构调整)
+    "*.ts", // include all .ts files in root directory
+    "toolkits/**/*.ts", // include all .ts files in toolkits directory and its subdirectories (adjust according to your file structure)
+    "lido-operations.ts" // include all .ts files in toolkits directory and its subdirectories (adjust according to your file structure)
   ],
   "exclude": [
     "node_modules"
